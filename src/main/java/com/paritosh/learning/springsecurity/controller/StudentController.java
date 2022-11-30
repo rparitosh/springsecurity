@@ -11,15 +11,11 @@ import java.util.List;
 @RestController
 public class StudentController {
 
-    private static List<Student> STUDENTS = List.of(new Student[]{
-            new Student(1,"Paritosh Raut"),
-            new Student(2,"Aruna Raut"),
-            new Student(3,"Zane Krishnia")
-    });
+
 
     @GetMapping("api/v1/Student/{id}")
     public Student getStudentById(@PathVariable int id){
-        return STUDENTS
+        return StudentsData.STUDENTS
                 .stream()
                 .filter(student -> id == student.getId())
                 .findFirst()

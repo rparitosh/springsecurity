@@ -13,6 +13,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+import static com.paritosh.learning.springsecurity.security.ApplicationUserRole.*;
+import static com.paritosh.learning.springsecurity.security.ApplicationUserPermission.*;
+
 @Configuration
 @EnableWebSecurity
 public class ApplicationSecurityConfig {
@@ -23,8 +26,13 @@ public class ApplicationSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http
-
+                .csrf().disable()
                 .authorizeHttpRequests()
+                .requestMatchers("/api/**").hasRole(STUDENT.name())
+                .requestMatchers(HttpMethod.DELETE, "/management/api/**").hasAuthority(COURSE_WRITE.name())
+                .requestMatchers(HttpMethod.POST, "/management/api/**").hasAuthority(COURSE_WRITE.name())
+                .requestMatchers(HttpMethod.PUT, "/management/api/**").hasAuthority(COURSE_WRITE.name())
+                .requestMatchers(HttpMethod.GET, "/management/api/**").hasAnyRole(ADMIN.name(),ADMINTRAINEE.name())
                 .anyRequest()
                 .authenticated()
                 .and()
@@ -38,9 +46,24 @@ public class ApplicationSecurityConfig {
         UserDetails paritoshUser = User.builder()
                 .username("paritosh")
                 .password(passwordEncoder.encode("password"))
-                .roles("STUDENT")
+                .roles(STUDENT.name())
                 .build();
 
-        return new InMemoryUserDetailsManager(paritoshUser);
+        UserDetails arunaUser = User.builder()
+                .username("aruna")
+                .password(passwordEncoder.encode("password"))
+                .roles(ADMIN.name())
+                .build();
+
+        UserDetails tomUser = User.builder()
+                .username("tom")
+                .password(passwordEncoder.encode("password"))
+                .roles(ADMINTRAINEE.name())
+                .build();
+
+        return new InMemoryUserDetailsManager(
+                arunaUser,
+                paritoshUser,
+                tomUser);
     }
 }
